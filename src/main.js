@@ -23,7 +23,6 @@ class Vec2 {
         this.y = y;
     }
 }
-
 class Box {
     /**
      * Create a new box in space
@@ -107,6 +106,8 @@ class Box {
 class Pong {
     constructor(canvas) {
         this.canvas = canvas;
+
+        this.ball = new Box(new Vec2(WIDTH / 2, HEIGHT / 2), new Vec2(20, 20));
     }
 
     get context() {
@@ -118,6 +119,9 @@ class Pong {
 
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        ctx.fillStyle = 'white';
+        ctx.fillRect(this.ball.left, this.ball.top, this.ball.width, this.ball.height);
     }
 }
 
