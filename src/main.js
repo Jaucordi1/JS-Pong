@@ -103,17 +103,75 @@ class Box {
         return new Vec2(this.centerX, this.centerY);
     }
 }
+
+class Timer {
+    /**
+     * @param {number} deltaTime
+     */
+    constructor(deltaTime = 1 / 60) {
+        this.accumulatedTime = 0;
+        this.lastTime = 0;
+        this.deltaTime = deltaTime;
+        this.needStop = false;
+
+        this.frameProxy = (time) => {
+            this.accumulatedTime += (time - this.lastTime) / 1000;
+
+            if (this.accumulatedTime > 1)
+                this.accumulatedTime = 1;
+
+            while (this.accumulatedTime > this.deltaTime) {
+                this.frame(this.deltaTime);
+                this.accumulatedTime -= deltaTime;
+            }
+
+            this.lastTime = time;
+
+            this.enqueue();
+        };
+    }
+
+    enqueue() {
+        if (!this.needStop)
+            requestAnimationFrame(this.frameProxy);
+    }
+
+    start() {
+        this.needStop = false;
+        this.enqueue();
+    }
+
+    stop() {
+        this.needStop = true;
+    }
+
+    frame(deltaTime) {
+        console.log("Frame :", deltaTime);
+    }
+}
 class Pong {
     constructor(canvas) {
         this.canvas = canvas;
 
         this.ball = new Box(new Vec2(WIDTH / 2, HEIGHT / 2), new Vec2(20, 20));
+
+        this.timer = new Timer(1 / 30);
+        this.timer.frame = (deltaTime) => {
+            this.frame(deltaTime);
+        };
     }
 
     get context() {
         return this.canvas.getContext('2d');
     }
 
+    start() {
+        this.timer.start();
+    }
+
+    update(deltaTime) {
+
+    }
     draw() {
         const ctx = this.context;
 
@@ -123,6 +181,11 @@ class Pong {
         ctx.fillStyle = 'white';
         ctx.fillRect(this.ball.left, this.ball.top, this.ball.width, this.ball.height);
     }
+
+    frame(deltaTime) {
+        this.update(deltaTime);
+        this.draw();
+    }
 }
 
 const canvas = document.getElementById('screen');
@@ -130,4 +193,4 @@ canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
 const PONG = new Pong(canvas);
-PONG.draw();
+PONG.start();
