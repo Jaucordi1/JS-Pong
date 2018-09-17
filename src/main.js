@@ -154,6 +154,8 @@ class Pong {
         this.canvas = canvas;
 
         this.ball = new Box(new Vec2(WIDTH / 2, HEIGHT / 2), new Vec2(20, 20));
+        this.ball.centerX = WIDTH / 2;
+        this.ball.centerY = HEIGHT / 2;
 
         this.timer = new Timer(1 / 30);
         this.timer.frame = (deltaTime) => {
