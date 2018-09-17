@@ -128,6 +128,20 @@ class Entity extends Box {
         this.pos.y += this.vel.y * deltaTime;
     }
 }
+
+class Player extends Entity {
+    /**
+     * Create a new Player entity
+     *
+     * @param {number} x
+     * @param {number} y
+     */
+    constructor(x, y) {
+        super(x, y, 20, 150);
+
+        this.score = 0;
+    }
+}
 class Timer {
     /**
      * @param {number} deltaTime
@@ -188,11 +202,8 @@ class Pong {
         this.canvas = canvas;
 
         this.ball = new Entity(WIDTH / 2, HEIGHT / 2, 20, 20);
-        this.ball.centerX = WIDTH / 2;
-        this.ball.centerY = HEIGHT / 2;
 
-        this.players = [new Entity(20, HEIGHT / 2, 20, 150), new Entity(WIDTH - 40, HEIGHT / 2, 20, 150)];
-        this.players.forEach(player => player.centerY = HEIGHT / 2);
+        this.players = [new Player(20, HEIGHT / 2), new Player(WIDTH - 40, HEIGHT / 2)];
 
         this.timer = new Timer(1 / 30);
         this.timer.frame = (deltaTime) => {
