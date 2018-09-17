@@ -103,6 +103,31 @@ class Box {
         return new Vec2(this.centerX, this.centerY);
     }
 }
+
+class Entity extends Box {
+    /**
+     * Create a new entity
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     */
+    constructor(x, y, width, height) {
+        super(new Vec2(x, y), new Vec2(width, height));
+        this.vel = new Vec2;
+    }
+
+    /**
+     * Update entity position
+     *
+     * @param {number} deltaTime
+     */
+    update(deltaTime) {
+        this.pos.x += this.vel.x * deltaTime;
+        this.pos.y += this.vel.y * deltaTime;
+    }
+}
 class Timer {
     /**
      * @param {number} deltaTime
@@ -144,19 +169,29 @@ class Timer {
         this.needStop = true;
     }
 
+    /**
+     * Called each frame !
+     *
+     * @param {number} deltaTime
+     */
     frame(deltaTime) {
         console.log("Frame :", deltaTime);
     }
 }
 class Pong {
+    /**
+     * Create a new Pong game in the given canvas
+     *
+     * @param {HTMLCanvasElement|HTMLElement} canvas
+     */
     constructor(canvas) {
         this.canvas = canvas;
 
-        this.ball = new Box(new Vec2(WIDTH / 2, HEIGHT / 2), new Vec2(20, 20));
+        this.ball = new Entity(WIDTH / 2, HEIGHT / 2, 20, 20);
         this.ball.centerX = WIDTH / 2;
         this.ball.centerY = HEIGHT / 2;
 
-        this.players = [new Box(new Vec2(20, HEIGHT / 2), new Vec2(20, 150)), new Box(new Vec2(WIDTH - 40, HEIGHT / 2), new Vec2(20, 150))];
+        this.players = [new Entity(20, HEIGHT / 2, 20, 150), new Entity(WIDTH - 40, HEIGHT / 2, 20, 150)];
         this.players.forEach(player => player.centerY = HEIGHT / 2);
 
         this.timer = new Timer(1 / 30);
@@ -169,13 +204,29 @@ class Pong {
         return this.canvas.getContext('2d');
     }
 
+    /**
+     * Start the game
+     */
     start() {
+        this.ball.vel.x = 200 * (Math.random() * .5);
+        this.ball.vel.y = 200 * (Math.random() * .5);
+
         this.timer.start();
     }
 
+    /**
+     * Called each frame before drawing
+     *
+     * @param {number} deltaTime
+     */
     update(deltaTime) {
-
+        this.ball.update(deltaTime);
+        this.players.forEach(player => player.update(deltaTime));
     }
+
+    /**
+     * Call each frame after updating
+     */
     draw() {
         const ctx = this.context;
 
@@ -187,6 +238,11 @@ class Pong {
         this.players.forEach(player => ctx.fillRect(player.left, player.top, player.width, player.height));
     }
 
+    /**
+     * Called each frame !
+     *
+     * @param {number} deltaTime
+     */
     frame(deltaTime) {
         this.update(deltaTime);
         this.draw();
