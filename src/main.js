@@ -103,7 +103,6 @@ class Box {
         return new Vec2(this.centerX, this.centerY);
     }
 }
-
 class Timer {
     /**
      * @param {number} deltaTime
@@ -157,6 +156,9 @@ class Pong {
         this.ball.centerX = WIDTH / 2;
         this.ball.centerY = HEIGHT / 2;
 
+        this.players = [new Box(new Vec2(20, HEIGHT / 2), new Vec2(20, 150)), new Box(new Vec2(WIDTH - 40, HEIGHT / 2), new Vec2(20, 150))];
+        this.players.forEach(player => player.centerY = HEIGHT / 2);
+
         this.timer = new Timer(1 / 30);
         this.timer.frame = (deltaTime) => {
             this.frame(deltaTime);
@@ -182,6 +184,7 @@ class Pong {
 
         ctx.fillStyle = 'white';
         ctx.fillRect(this.ball.left, this.ball.top, this.ball.width, this.ball.height);
+        this.players.forEach(player => ctx.fillRect(player.left, player.top, player.width, player.height));
     }
 
     frame(deltaTime) {
