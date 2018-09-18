@@ -1,4 +1,5 @@
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight;
+const PRESSED = Symbol('pressed'), RELEASED = Symbol('released');
 
 class Vec2 {
     /**
@@ -10,6 +11,16 @@ class Vec2 {
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
+    }
+
+    get len() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    set len(value) {
+        const f = value / this.len;
+        this.x *= f;
+        this.y *= f;
     }
 
     /**
@@ -102,8 +113,18 @@ class Box {
     get center() {
         return new Vec2(this.centerX, this.centerY);
     }
-}
 
+    /**
+     *
+     * @param {Box} box
+     */
+    overlaps(box) {
+        return this.left < box.right
+            && this.right > box.left
+            && this.top < box.bottom
+            && this.bottom > box.top;
+    }
+}
 class Entity extends Box {
     /**
      * Create a new entity
@@ -118,6 +139,9 @@ class Entity extends Box {
         this.vel = new Vec2;
     }
 
+    collide(entity) {
+    }
+
     /**
      * Update entity position
      *
@@ -129,6 +153,47 @@ class Entity extends Box {
     }
 }
 
+class Keyboard {
+    constructor() {
+        this.holdedKeys = new Map();
+        this.keyStates = new Map();
+    }
+
+    /**
+     * @param {string} code
+     * @param {function} callback
+     */
+    register(code, callback) {
+        if (this.holdedKeys.has(code))
+            this.holdedKeys.delete(code);
+
+        this.holdedKeys.set(code, callback);
+    }
+
+    /**
+     * @param {Event} event
+     */
+    event(event) {
+        const {code} = event;
+
+        if (!this.holdedKeys.has(code))
+            return;
+
+        event.preventDefault();
+
+        const keyState = event.type === 'keydown' ? PRESSED : RELEASED;
+
+        if (this.keyStates.get(code) === keyState)
+            return;
+
+        this.keyStates.set(code, keyState);
+        this.holdedKeys.get(code)(keyState);
+    }
+
+    listen() {
+        ["keydown", "keyup"].forEach(eventName => window.addEventListener(eventName, (e) => this.event(e)));
+    }
+}
 class Player extends Entity {
     /**
      * Create a new Player entity
@@ -140,6 +205,42 @@ class Player extends Entity {
         super(x, y, 20, 150);
 
         this.score = 0;
+        this.keyboard = new Keyboard();
+    }
+
+    /**
+     * @param {string} key
+     */
+    set up(key) {
+        this.keyboard.register(key, (keyState) => {
+            this.vel.y += (keyState === PRESSED) ? -1 : 1;
+        });
+    }
+
+    /**
+     * @param {string} key
+     */
+    set down(key) {
+        this.keyboard.register(key, (keyState) => {
+            this.vel.y += (keyState === PRESSED) ? 1 : -1;
+        });
+    }
+
+    collide(ball) {
+        if (this.left < ball.right && this.right > ball.left && this.top < ball.bottom && this.bottom > ball.top) {
+            ball.vel.x = -ball.vel.x * 1.05;
+            const len = ball.vel.len;
+            ball.vel.y += this.vel.y * .2;
+            ball.vel.len = len;
+        }
+    }
+
+    /**
+     * @param {number} deltaTime
+     */
+    update(deltaTime) {
+        this.pos.y += (this.vel.y * 200) * deltaTime;
+        PONG.checkY(this);
     }
 }
 class Timer {
@@ -202,17 +303,39 @@ class Pong {
         this.canvas = canvas;
 
         this.ball = new Entity(WIDTH / 2, HEIGHT / 2, 20, 20);
-
         this.players = [new Player(20, HEIGHT / 2), new Player(WIDTH - 40, HEIGHT / 2)];
 
         this.timer = new Timer(1 / 30);
         this.timer.frame = (deltaTime) => {
             this.frame(deltaTime);
         };
+
+        this.players[0].up = 'KeyW';
+        this.players[0].down = 'KeyS';
+        this.players[1].up = 'ArrowUp';
+        this.players[1].down = 'ArrowDown';
+
+        this.players.forEach(player => player.keyboard.listen());
     }
 
     get context() {
         return this.canvas.getContext('2d');
+    }
+
+    check(entity) {
+        if (this.ball.overlaps(entity)) {
+            entity.collide(this.ball);
+        }
+    }
+
+    /**
+     * @param {Player} player
+     */
+    checkY(player) {
+        if (player.top < 0)
+            player.top = 0;
+        if (player.bottom > HEIGHT)
+            player.bottom = HEIGHT;
     }
 
     /**
@@ -262,6 +385,7 @@ class Pong {
         }
 
         this.players.forEach(player => player.update(deltaTime));
+        this.players.forEach(player => this.check(player));
     }
 
     /**
