@@ -276,6 +276,11 @@ class Pong {
         ctx.fillStyle = 'white';
         ctx.fillRect(this.ball.left, this.ball.top, this.ball.width, this.ball.height);
         this.players.forEach(player => ctx.fillRect(player.left, player.top, player.width, player.height));
+
+        ctx.textAlign = 'center';
+        ctx.font = (HEIGHT / 10) + 'px Arial';
+        ctx.fillText(this.players[0].score, WIDTH / 4, 100);
+        ctx.fillText(this.players[1].score, WIDTH / 4 * 3, 100);
     }
 
     /**
