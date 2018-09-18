@@ -219,10 +219,23 @@ class Pong {
      * Start the game
      */
     start() {
+        this.reset();
+
         this.ball.vel.x = 200 * (Math.random() * .5);
         this.ball.vel.y = 200 * (Math.random() * .5);
 
         this.timer.start();
+    }
+
+    /**
+     * Freeze the ball and place it at the center, also centering players on Y-axis
+     */
+    reset() {
+        this.ball.vel.set(0, 0);
+        this.ball.centerX = WIDTH / 2;
+        this.ball.centerY = HEIGHT / 2;
+
+        this.players.forEach(player => player.centerY = HEIGHT / 2);
     }
 
     /**
@@ -232,6 +245,22 @@ class Pong {
      */
     update(deltaTime) {
         this.ball.update(deltaTime);
+
+        if (this.ball.right < 0 || this.ball.left > WIDTH) {
+            // GOAL
+            ++this.players[(this.ball.vel.x < 0) ? 1 : 0].score;
+            this.start();
+        }
+
+        if (this.ball.top < 0 || this.ball.bottom > HEIGHT) {
+            if (this.ball.top < 0)
+                this.ball.top = 0;
+            else
+                this.ball.bottom = HEIGHT;
+
+            this.ball.vel.y = -this.ball.vel.y * 1.05;
+        }
+
         this.players.forEach(player => player.update(deltaTime));
     }
 
