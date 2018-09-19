@@ -1,7 +1,6 @@
 import {Box, Vec2} from "./math.js";
-import {Keyboard} from "./inputs.js";
-import {PRESSED} from "./inputs";
-import {HEIGHT} from "./finished";
+import {Keyboard, PRESSED} from "./inputs.js";
+import {HEIGHT} from "./main.js";
 
 export class Entity extends Box {
     /**
