@@ -87,3 +87,39 @@ export class Player extends Entity {
         this.checkY();
     }
 }
+
+export class Ball extends Entity {
+    /**
+     * @param {number} x
+     * @param {number} y
+     */
+    constructor(x, y) {
+        super(x, y, 20, 20);
+    }
+
+    checkX() {
+
+    }
+
+    checkY() {
+        if (this.top < 0 || this.bottom > HEIGHT) {
+            if (this.top < 0)
+                this.top = 0;
+            else
+                this.bottom = HEIGHT;
+
+            this.vel.y = -this.vel.y * 1.05;
+        }
+    }
+
+    /**
+     * @param {number} deltaTime
+     */
+    update(deltaTime) {
+        this.pos.x += this.vel.x * deltaTime;
+        this.checkX();
+
+        this.pos.y += this.vel.y * deltaTime;
+        this.checkY();
+    }
+}
