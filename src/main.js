@@ -1,6 +1,6 @@
-import {Entity, Player} from "./entities";
+import {Ball, Player} from "./entities.js";
 
-const WIDTH = window.innerWidth, HEIGHT = window.innerHeight;
+export const WIDTH = window.innerWidth, HEIGHT = window.innerHeight;
 
 class Timer {
     /**
@@ -19,7 +19,7 @@ class Timer {
                 this.accumulatedTime = 1;
 
             while (this.accumulatedTime > this.deltaTime) {
-                this.frame(this.deltaTime);
+                Timer.frame(this.deltaTime);
                 this.accumulatedTime -= deltaTime;
             }
 
@@ -48,7 +48,7 @@ class Timer {
      *
      * @param {number} deltaTime
      */
-    frame(deltaTime) {
+    static frame(deltaTime) {
         console.log("Frame :", deltaTime);
     }
 }
@@ -61,11 +61,26 @@ class Pong {
     constructor(canvas) {
         this.canvas = canvas;
 
-        this.ball = new Entity(WIDTH / 2, HEIGHT / 2, 20, 20);
+        this.ball = new Ball(WIDTH / 2, HEIGHT / 2);
+        this.ball.checkX = () => {
+            if (this.ball.right < 0 || this.ball.left > WIDTH) {
+                // GOAL
+                if (++this.players[(this.ball.vel.x < 0) ? 1 : 0].score > 2) {
+                    this.winner = (this.ball.vel.x < 0) ? 1 : 0;
+                    this.reset();
+                    setTimeout(() => {
+                        this.players.forEach(player => player.score = 0);
+                        this.winner = -1;
+                        this.start();
+                    }, 3000);
+                } else
+                    this.start();
+            }
+        };
         this.players = [new Player(20, HEIGHT / 2), new Player(WIDTH - 40, HEIGHT / 2)];
 
         this.timer = new Timer(1 / 30);
-        this.timer.frame = (deltaTime) => {
+        Timer.frame = (deltaTime) => {
             this.frame(deltaTime);
         };
 
@@ -75,6 +90,8 @@ class Pong {
         this.players[1].down = 'ArrowDown';
 
         this.players.forEach(player => player.keyboard.listen());
+
+        this.winner = -1;
     }
 
     get context() {
@@ -127,12 +144,6 @@ class Pong {
      */
     update(deltaTime) {
         this.ball.update(deltaTime);
-
-        if (this.ball.right < 0 || this.ball.left > WIDTH) {
-            // GOAL
-            ++this.players[(this.ball.vel.x < 0) ? 1 : 0].score;
-            this.start();
-        }
 
         if (this.ball.top < 0 || this.ball.bottom > HEIGHT) {
             if (this.ball.top < 0)
