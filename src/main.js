@@ -199,3 +199,8 @@ canvas.height = HEIGHT;
 
 const PONG = new Pong(canvas);
 PONG.start();
+
+window.addEventListener('mousemove', event => {
+    const scale = event.offsetY / event.target.getBoundingClientRect().height;
+    PONG.players[(PONG.winner > -1) ? PONG.winner : ((PONG.ball.vel.x < 0) ? 0 : 1)].pos.y = HEIGHT * scale;
+});
