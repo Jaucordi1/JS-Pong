@@ -29,6 +29,15 @@ class Timer {
         };
     }
 
+    /**
+     * Called each frame !
+     *
+     * @param {number} deltaTime
+     */
+    static frame(deltaTime) {
+        console.log("Frame :", deltaTime);
+    }
+
     enqueue() {
         if (!this.needStop)
             requestAnimationFrame(this.frameProxy);
@@ -41,15 +50,6 @@ class Timer {
 
     stop() {
         this.needStop = true;
-    }
-
-    /**
-     * Called each frame !
-     *
-     * @param {number} deltaTime
-     */
-    static frame(deltaTime) {
-        console.log("Frame :", deltaTime);
     }
 }
 class Pong {
@@ -99,19 +99,8 @@ class Pong {
     }
 
     check(entity) {
-        if (this.ball.overlaps(entity)) {
+        if (this.ball.overlaps(entity))
             entity.collide(this.ball);
-        }
-    }
-
-    /**
-     * @param {Player} player
-     */
-    checkY(player) {
-        if (player.top < 0)
-            player.top = 0;
-        if (player.bottom > HEIGHT)
-            player.bottom = HEIGHT;
     }
 
     /**
@@ -120,8 +109,8 @@ class Pong {
     start() {
         this.reset();
 
-        this.ball.vel.x = 200 * (Math.random() * .5);
-        this.ball.vel.y = 200 * (Math.random() * .5);
+        this.ball.vel.x = 500 * (Math.random() * .5);
+        this.ball.vel.y = 500 * (Math.random() * .5);
 
         this.timer.start();
     }
@@ -151,7 +140,7 @@ class Pong {
             else
                 this.ball.bottom = HEIGHT;
 
-            this.ball.vel.y = -this.ball.vel.y * 1.05;
+            this.ball.vel.y = -this.ball.vel.y * 1.1;
         }
 
         this.players.forEach(player => player.update(deltaTime));
@@ -173,7 +162,23 @@ class Pong {
 
         ctx.textAlign = 'center';
         ctx.font = (HEIGHT / 10) + 'px Arial';
+
+        if (this.winner > -1) {
+            if (this.winner > 0)
+                ctx.fillStyle = 'red';
+            else
+                ctx.fillStyle = 'green';
+        } else
+            ctx.fillStyle = 'white';
         ctx.fillText(this.players[0].score, WIDTH / 4, 100);
+
+        if (this.winner > -1) {
+            if (this.winner > 0)
+                ctx.fillStyle = 'green';
+            else
+                ctx.fillStyle = 'red';
+        } else
+            ctx.fillStyle = 'white';
         ctx.fillText(this.players[1].score, WIDTH / 4 * 3, 100);
     }
 
