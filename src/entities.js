@@ -1,5 +1,7 @@
 import {Box, Vec2} from "./math.js";
 import {Keyboard} from "./inputs.js";
+import {PRESSED} from "./inputs";
+import {HEIGHT} from "./finished";
 
 export class Entity extends Box {
     /**
@@ -70,11 +72,18 @@ export class Player extends Entity {
         }
     }
 
+    checkY() {
+        if (this.top < 0)
+            this.top = 0;
+        if (this.bottom > HEIGHT)
+            this.bottom = HEIGHT;
+    }
+
     /**
      * @param {number} deltaTime
      */
     update(deltaTime) {
         this.pos.y += (this.vel.y * 200) * deltaTime;
-        PONG.checkY(this);
+        this.checkY();
     }
 }
