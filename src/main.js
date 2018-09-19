@@ -109,8 +109,8 @@ class Pong {
     start() {
         this.reset();
 
-        this.ball.vel.x = 500 * (Math.random() * .5);
-        this.ball.vel.y = 500 * (Math.random() * .5);
+        this.ball.vel.x = 300 * (Math.random() * ((Math.random() >= 0.5) ? 1 : -1));
+        this.ball.vel.y = 300 * (Math.random() * ((Math.random() >= 0.5) ? 1 : -1));
 
         this.timer.start();
     }
